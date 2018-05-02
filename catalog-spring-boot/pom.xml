@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project 
-  xmlns="http://maven.apache.org/POM/4.0.0" 
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.redhat.cloudnative</groupId>
@@ -9,27 +9,36 @@
   <name>CoolStore Catalog Service</name>
   <description>CoolStore Catalog Service with Spring Boot</description>
   <properties>
-    <spring-boot.version>1.4.1.RELEASE</spring-boot.version>
-    <spring-boot.bom.version>1</spring-boot.bom.version>
+    <spring.boot.version>2.0.1.RELEASE</spring.boot.version>
+    <spring.cloud.version>Finchley.RC1</spring.cloud.version>
     <fabric8.version>2.3.4</fabric8.version>
-    <spring.k8s.bom.version>0.2.0.RELEASE</spring.k8s.bom.version>
     <k8s.client.version>2.4.1</k8s.client.version>
     <fabric8.maven.plugin.version>3.5.32</fabric8.maven.plugin.version>
     <postgresql.version>9.4.1212</postgresql.version>
   </properties>
+  <repositories>
+    <repository>
+      <id>spring-milestones</id>
+      <name>Spring Milestones</name>
+      <url>https://repo.spring.io/libs-milestone</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.jboss.snowdrop</groupId>
-        <artifactId>spring-boot-1.4-bom</artifactId>
-        <version>${spring-boot.bom.version}</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring.boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-kubernetes-dependencies</artifactId>
-        <version>${spring.k8s.bom.version}</version>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring.cloud.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -39,6 +48,17 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-undertow</artifactId>
+      <version>${spring.boot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -48,10 +68,10 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
-    <dependency>
+    <!--<dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-kubernetes-config</artifactId>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-client</artifactId>
@@ -81,7 +101,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${spring-boot.version}</version>
+        <version>${spring.boot.version}</version>
         <executions>
           <execution>
             <goals>
@@ -91,46 +111,6 @@
         </executions>
         <configuration>
           <jvmArguments>-Djava.net.preferIPv4Stack=true -Dserver.port=9000 -Dspring.cloud.kubernetes.enabled=false</jvmArguments>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-maven-plugin</artifactId>
-        <version>${fabric8.maven.plugin.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>resource</goal>
-              <goal>build</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <resources>
-              <labels>
-                  <all>
-                      <property>
-                          <name>app</name>
-                          <value>catalog</value>
-                      </property>
-                  </all>
-              </labels>
-          </resources>
-          <enricher>
-            <excludes>
-              <exclude>spring-boot-health-check</exclude>
-            </excludes>
-          </enricher>
-          <generator>
-            <includes>
-              <include>spring-boot</include>
-            </includes>
-            <config>
-              <spring-boot>
-                <from>registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift:1.1</from>
-              </spring-boot>
-            </config>
-          </generator>
         </configuration>
       </plugin>
     </plugins>
